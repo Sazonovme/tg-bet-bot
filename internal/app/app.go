@@ -1,7 +1,7 @@
 package app
 
 import (
-	"RushBananaBet/internal/handler"
+	"RushBananaBet/internal/handlers"
 	"RushBananaBet/pkg/logger"
 	"os"
 	"strings"
@@ -9,38 +9,37 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-type Bot struct {
-	bot     *tgbotapi.BotAPI
-	handler handler.Handler
+type BotApp struct {
+	botApi *tgbotapi.BotAPI
 }
 
-func (b *Bot) Start(stop chan os.Signal) {
+func (botApp *BotApp) Start(stop chan os.Signal, handlers *handler.Handlers) {
 	logger.Info("Bot started", "", "", "", nil)
 
-	b.StartPolling()
+	botApp.StartPolling(handlers)
 
 	<-stop
 	logger.Info("Bot stoped", "", "", "", nil)
 
-	b.bot.StopReceivingUpdates()
+	botApp.botApi.StopReceivingUpdates()
 }
 
-func (b *Bot) StartPolling() {
+func (botApp *BotApp) StartPolling(handlers *handler.Handlers) {
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
 
-	updates := b.bot.GetUpdatesChan(u)
+	updates := botApp.botApi.GetUpdatesChan(u)
 
 	for update := range updates {
-		go b.RouteUpdate(update)
+		go botApp.RouteUpdate(update, handlers)
 	}
 }
 
-func (b *Bot) RouteUpdate(update tgbotapi.Update) {
+func (botApp *BotApp) RouteUpdate(update tgbotapi.Update, handlers *handler.Handlers) {
 	if update.Message != nil {
 		switch {
 		case update.Message.Text == "/start":
-			b.handler.HandlerStart()
+			handlers.Start()
 			// msg := handlers.HandleStart(update.Message)
 			// bot.Send(msg)
 			// // другие команды...
@@ -58,14 +57,13 @@ func (b *Bot) RouteUpdate(update tgbotapi.Update) {
 	}
 }
 
-func NewBot(botToken string, handler handler.Handler) Bot {
-	bot, err := tgbotapi.NewBotAPI(botToken)
+func NewBotApp(botToken string, handlers *handler.Handlers) BotApp {
+	botApi, err := tgbotapi.NewBotAPI(botToken)
 	if err != nil {
 		logger.Fatal("Error creating newBot", "", "", "main-main()", err)
 	}
-	return Bot{
-		bot:     bot,
-		handler: handler,
+	return BotApp{
+		botApi: botApi,
 	}
 }
 
