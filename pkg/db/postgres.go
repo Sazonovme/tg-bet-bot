@@ -3,22 +3,21 @@ package db
 import (
 	"RushBananaBet/pkg/logger"
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func NewPostgresPool(ctx context.Context, dbURL string) *pgxpool.Pool {
+func NewPostgresPool(ctx context.Context, dbURL string) (*pgxpool.Pool, error) {
 	// postgres://user:pass@localhost:5432/dbname?sslmode=disable
-
-	//c := pgxpool.New()
 
 	config, err := pgxpool.ParseConfig(dbURL)
 	if err != nil {
-		logger.Fatal("Error parse config for pgxpool", "", "", "db - NewPostgresPool()", err)
-		return nil
+		logger.Fatal("Error parse config for pgxpool", "db - NewPostgresPool()", err)
+		return nil, err
 	}
+
+	logger.Debug("Success parse DB Config", "db-NewPostgresPool()", nil)
 
 	config.MaxConns = 10
 	config.MinConns = 2
@@ -26,11 +25,18 @@ func NewPostgresPool(ctx context.Context, dbURL string) *pgxpool.Pool {
 
 	pool, err := pgxpool.NewWithConfig(ctx, config)
 	if err != nil {
-		return fmt.Errorf("error creating pool: %w", err)
+		logger.Fatal("Error create pgxpool", "db - NewPostgresPool()", err)
+		return nil, err
 	}
 
-	// Проверим соединение
+	logger.Debug("Success create pgxpool", "db-NewPostgresPool()", nil)
+
 	if err := pool.Ping(ctx); err != nil {
-		return fmt.Errorf("could not ping database: %w", err)
+		logger.Fatal("Error database is not responding", "db - NewPostgresPool()", err)
+		return nil, err
 	}
+
+	logger.Debug("Success ping databse", "db-NewPostgresPool()", nil)
+
+	return pool, nil
 }
