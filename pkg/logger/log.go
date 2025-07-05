@@ -29,46 +29,41 @@ func InitLogger(level int, formatProduction bool) {
 	}
 }
 
-func Fatal(textMessage string, user string, additionalTextMessage string, location string, err error) {
+func Fatal(textMessage string, location string, err error) {
 	logger.WithFields(logrus.Fields{
-		"user":     user,
-		"text":     additionalTextMessage,
+		"text":     textMessage,
 		"location": location,
 		"err":      err,
 	}).Fatal()
 }
 
-func Error(textMessage string, user string, additionalTextMessage string, location string, err error) {
+func Error(textMessage string, location string, err error) {
 	logger.WithFields(logrus.Fields{
-		"user":     user,
-		"text":     additionalTextMessage,
+		"text":     textMessage,
 		"location": location,
 		"err":      err,
 	}).Error()
 }
 
-func Warn(textMessage string, user string, additionalTextMessage string, location string, err error) {
+func Warn(textMessage string, location string, err error) {
 	logger.WithFields(logrus.Fields{
-		"user":     user,
-		"text":     additionalTextMessage,
+		"text":     textMessage,
 		"location": location,
 		"err":      err,
 	}).Warn()
 }
 
-func Info(textMessage string, user string, additionalTextMessage string, location string, err error) {
+func Info(textMessage string, location string, err error) {
 	logger.WithFields(logrus.Fields{
-		"user":     user,
-		"text":     additionalTextMessage,
+		"text":     textMessage,
 		"location": location,
 		"err":      err,
 	}).Info()
 }
 
-func Debug(textMessage string, user string, additionalTextMessage string, location string, err error) {
+func Debug(textMessage string, location string, err error) {
 	logger.WithFields(logrus.Fields{
-		"user":     user,
-		"text":     additionalTextMessage,
+		"text":     textMessage,
 		"location": location,
 		"err":      err,
 	}).Debug()

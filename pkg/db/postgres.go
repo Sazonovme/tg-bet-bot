@@ -8,8 +8,10 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func NewPostgresPool(ctx context.Context, dbURL string) (*pgxpool.Pool, error) {
-	// postgres://user:pass@localhost:5432/dbname?sslmode=disable
+func NewPostgresPool(dbURL string) (*pgxpool.Pool, error) {
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 
 	config, err := pgxpool.ParseConfig(dbURL)
 	if err != nil {

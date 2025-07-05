@@ -21,13 +21,13 @@ func NewRepository(db *pgxpool.Pool) *mainRepository {
 
 // ADMIN
 
-func (r *mainRepository) createEvent(ctx context.Context, e model.Event) error {
+func (r *mainRepository) CreateEvent(ctx context.Context, event model.Event) error {
 	query := `INSERT INTO current_event(name, team_1, team_2, date) VALUES (@name, @team1, @team2, @date)`
 	args := pgx.NamedArgs{
-		"name":  e.Name,
-		"team1": e.Team1,
-		"team2": e.Team2,
-		"date":  e.Date,
+		"name":  event.Name,
+		"team1": event.Team1,
+		"team2": event.Team2,
+		"date":  event.Date,
 	}
 	_, err := r.db.Exec(ctx, query, args)
 	if err != nil {
@@ -38,7 +38,7 @@ func (r *mainRepository) createEvent(ctx context.Context, e model.Event) error {
 	return nil
 }
 
-func (r *mainRepository) addResultToEvent(ctx context.Context, result string) error {
+func (r *mainRepository) AddResultToEvent(ctx context.Context, result string) error {
 	query := `INSERT INTO current_event(result) VALUES (@result)`
 	args := pgx.NamedArgs{
 		"result": result,
@@ -52,7 +52,7 @@ func (r *mainRepository) addResultToEvent(ctx context.Context, result string) er
 	return nil
 }
 
-func (r *mainRepository) getEventFinishTable(ctx context.Context) ([]model.FinishTable, error) {
+func (r *mainRepository) GetEventFinishTable(ctx context.Context) ([]model.FinishTable, error) {
 	query := `SELECT 
 				cp.username,
 				ce.name,
@@ -89,7 +89,7 @@ func (r *mainRepository) getEventFinishTable(ctx context.Context) ([]model.Finis
 
 // USER
 
-func (r *mainRepository) getUserPredictions(ctx context.Context, username string) ([]model.UserPrediction, error) {
+func (r *mainRepository) GetUserPredictions(ctx context.Context, username string) ([]model.UserPrediction, error) {
 	query := `SELECT current_event.name, current_predictions.prediction
 			FROM current_predictions AS current_predictions
 				LEFT JOIN current_event ON
@@ -120,7 +120,7 @@ func (r *mainRepository) getUserPredictions(ctx context.Context, username string
 	return predictions, nil
 }
 
-func (r *mainRepository) addUserPrediction(ctx context.Context, prediction *model.UserPrediction) error {
+func (r *mainRepository) AddUserPrediction(ctx context.Context, prediction *model.UserPrediction) error {
 	query := `INSERT INTO current_predictions(username, id_event, prediction) VALUES (@username, @id_event, @prediction)`
 	args := pgx.NamedArgs{
 		"username":   prediction.UserName,
